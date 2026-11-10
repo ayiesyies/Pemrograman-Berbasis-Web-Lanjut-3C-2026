@@ -19,7 +19,6 @@ class StoreBukuRequest extends FormRequest
             'kategori_id'  => 'required|exists:kategoris,id',
             'judul'        => 'required|string|min:3|max:255',
             'penulis'      => 'required|string|max:255',
-            'penerbit'     => 'required|string|max:255',
             'tahun_terbit' => 'required|integer|between:1900,2026',
         ];
     }
@@ -35,8 +34,6 @@ class StoreBukuRequest extends FormRequest
             'judul.max'            => 'Judul buku maksimal 255 karakter.',
             'penulis.required'     => 'Nama penulis wajib diisi.',
             'penulis.string'       => 'Nama penulis harus berupa teks.',
-            'penerbit.required'    => 'Penerbit wajib diisi.',
-            'penerbit.string'      => 'Penerbit harus berupa teks.',
             'tahun_terbit.required'=> 'Tahun terbit wajib diisi.',
             'tahun_terbit.integer' => 'Tahun terbit harus berupa bilangan bulat.',
             'tahun_terbit.between' => 'Tahun terbit harus antara 1900 sampai 2026.',
@@ -49,7 +46,6 @@ class StoreBukuRequest extends FormRequest
             'kategori_id'  => 'kategori',
             'judul'        => 'judul buku',
             'penulis'      => 'penulis',
-            'penerbit'     => 'penerbit',
             'tahun_terbit' => 'tahun terbit',
         ];
     }

@@ -2,29 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreBukuRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Buku;
 
 class BukuController extends Controller
 {
-   public function index()
-{
-    $buku = Buku::with('kategori')->get();
-    return view('buku.index', compact('buku'));
-}
-
-    public function show($id)
+    /**
+     * Menampilkan daftar buku ke tampilan index.
+     * Mengirimkan variabel $bukus agar Blade dapat merender perulangan (Celah A1).
+     */
+    public function index()
     {
-        $buku = Buku::with('kategori')->findOrFail($id);
-        return view('buku.show', compact('buku'));
+        $bukus = Buku::all();
+        return view('buku.index', compact('bukus'));
     }
 
-    public function store(StoreBukuRequest $request)
+    /**
+     * Celah A2: Pencarian buku rentan SQL Injection.
+     * Menggabungkan variabel $judul langsung ke dalam string kueri SQL.
+     */
+    public function cari(Request $request)
     {
-        $validatedData = $request->validated();
+        $judul = $request->query('judul');
 
-        Buku::create($validatedData);
+        // Celah A2: Penggabungan string langsung tanpa binding
+        $buku = DB::select("SELECT * FROM bukus WHERE judul = '$judul'");
 
-        return redirect()->route('buku.index');
+        return response()->json($buku);
+    }
+
+    /**
+     * Celah A3: Menghapus data buku.
+     * Dipanggil oleh rute GET /buku/{buku}/hapus dari berkas jebakan.html.
+     */
+    public function destroy(Buku $buku)
+    {
+        $buku->delete();
+        return redirect()->route('buku.index')->with('success', 'Buku berhasil dihapus!');
     }
 }
