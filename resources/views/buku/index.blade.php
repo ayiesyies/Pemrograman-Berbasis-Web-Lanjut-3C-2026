@@ -69,8 +69,8 @@
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $buku->kategori->nama ?? $buku->kategori_id ?? '-' }}</td>
                             
-                            {{-- CELAH A1: Tanpa HTML Escaping ({!! !}) --}}
-                            <td class="fw-bold">{!! $buku->judul !!}</td>
+                            {{-- PERBAIKAN A1: Menggunakan HTML Escaping bawaan Blade ({{ }}) --}}
+                            <td class="fw-bold">{{ $buku->judul }}</td>
                             
                             <td>{{ $buku->penulis }}</td>
                             <td>{{ $buku->tahun_terbit }}</td>
@@ -89,8 +89,12 @@
                                     @can('kelola data buku')
                                         <button class="btn btn-sm btn-warning me-1" onclick="editBuku({{ $buku->id }})">Ubah</button>
                                         
-                                        {{-- CELAH A3: Route Hapus menggunakan method GET --}}
-                                        <a href="/buku/{{ $buku->id }}/hapus" class="btn btn-sm btn-danger">Hapus</a>
+                                        {{-- PERBAIKAN A3: Menggunakan Form POST + @csrf + @method('DELETE') --}}
+                                        <form action="/buku/{{ $buku->id }}/hapus" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus buku ini?')">Hapus</button>
+                                        </form>
                                     @endcan
                                 </div>
                             </td>

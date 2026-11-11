@@ -128,11 +128,17 @@ class PeminjamanController extends Controller
         return view('peminjaman.riwayat', compact('peminjamanList'));
     }
 
+    /**
+     * Perbaikan A4 (IDOR): Validasi otorisasi kepemilikan transaksi peminjaman.
+     */
     public function show($id)
-{
-    // Celah A4: Mengambil data tanpa mengecek kepemilikan user_id
-    $peminjaman = Peminjaman::findOrFail($id);
-    return view('peminjaman.show', compact('peminjaman'));
-}
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
 
+        if ((int) $peminjaman->user_id !== (int) auth()->id() && !auth()->user()->hasAnyRole(['admin', 'petugas'])) {
+            abort(403, 'Akses ditolak! Anda tidak memiliki izin untuk melihat transaksi peminjaman ini.');
+        }
+
+        return view('peminjaman.show', compact('peminjaman'));
+    }
 }

@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Buku;
 
 class BukuController extends Controller
 {
     /**
      * Menampilkan daftar buku ke tampilan index.
-     * Mengirimkan variabel $bukus agar Blade dapat merender perulangan (Celah A1).
      */
     public function index()
     {
@@ -19,22 +17,21 @@ class BukuController extends Controller
     }
 
     /**
-     * Celah A2: Pencarian buku rentan SQL Injection.
-     * Menggabungkan variabel $judul langsung ke dalam string kueri SQL.
+     * Perbaikan A2: Pencarian buku aman dari SQL Injection.
+     * Menggunakan Eloquent ORM (Parameter Binding otomatis) tanpa penggabungan string mentah.
      */
     public function cari(Request $request)
     {
         $judul = $request->query('judul');
 
-        // Celah A2: Penggabungan string langsung tanpa binding
-        $buku = DB::select("SELECT * FROM bukus WHERE judul = '$judul'");
+        // Aman dari SQL Injection menggunakan Eloquent Parameter Binding
+        $buku = Buku::where('judul', $judul)->get();
 
         return response()->json($buku);
     }
 
     /**
-     * Celah A3: Menghapus data buku.
-     * Dipanggil oleh rute GET /buku/{buku}/hapus dari berkas jebakan.html.
+     * Perbaikan A3: Menghapus data buku (dipanggil via metode DELETE + CSRF Token).
      */
     public function destroy(Buku $buku)
     {

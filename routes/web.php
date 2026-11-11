@@ -70,16 +70,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laporan', function () { return view('laporan.index'); })->name('laporan.index');
     });
 
-    // Celah A2: Pencarian SQL Injection via Query String
+    // Perbaikan A2: Pencarian Buku (Kueri diamankan di BukuController)
     Route::get('/buku-cari', [BukuController::class, 'cari'])->name('buku.cari');
 
-    // Celah A3: Penghapusan Buku Menggunakan HTTP GET
-    Route::get('/buku/{buku}/hapus', [BukuController::class, 'destroy'])->name('buku.hapus.get');
+    // Perbaikan A3: Penghapusan Buku Menggunakan HTTP DELETE + CSRF Token
+    Route::delete('/buku/{buku}/hapus', [BukuController::class, 'destroy'])->name('buku.hapus');
 
-    // Celah A4: Detail Peminjaman Tanpa Cek Otorisasi Kepemilikan (IDOR)
+    // Perbaikan A4: Detail Peminjaman (Otorisasi kepemilikan dicek di PeminjamanController)
     Route::get('/peminjaman/{id}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 });
 
 require __DIR__.'/auth.php';
-
-
