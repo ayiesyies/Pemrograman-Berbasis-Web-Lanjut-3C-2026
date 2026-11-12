@@ -38,4 +38,16 @@ class BukuController extends Controller
         $buku->delete();
         return redirect()->route('buku.index')->with('success', 'Buku berhasil dihapus!');
     }
+
+    public function create()
+{
+    return view('buku.create');
+}
+
+public function store(Request $request)
+{
+    // ... biarkan kode validasi & simpan data buku milikmu tetap di sini ...
+
+    return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan!');
+}
 }

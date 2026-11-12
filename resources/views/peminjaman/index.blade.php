@@ -115,9 +115,11 @@
                         <label class="form-label fw-semibold">Pilih Siswa / Peminjam</label>
                         <select name="user_id" class="form-select" required>
                             <option value="" disabled selected>-- Pilih Siswa --</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                            @endforeach
+                            @isset($users)
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                @endforeach
+                            @endisset
                         </select>
                     </div>
 
@@ -126,9 +128,11 @@
                         <label class="form-label fw-semibold">Pilih Buku</label>
                         <select name="buku_id" class="form-select" required>
                             <option value="" disabled selected>-- Pilih Buku --</option>
-                            @foreach($bukuList as $buku)
-                                <option value="{{ $buku->id }}">{{ $buku->judul }} - (Penulis: {{ $buku->penulis }})</option>
-                            @endforeach
+                            @isset($bukuList)
+                                @foreach($bukuList as $buku)
+                                    <option value="{{ $buku->id }}">{{ $buku->judul }} - (Penulis: {{ $buku->penulis }})</option>
+                                @endforeach
+                            @endisset
                         </select>
                     </div>
 

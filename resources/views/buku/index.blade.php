@@ -4,6 +4,13 @@
 <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="m-0 fw-bold">Daftar Buku</h3>
+
+        {{-- Tombol menuju halaman /buku/create (Hanya tampil untuk Admin & Petugas) --}}
+        @can('kelola-buku')
+            <a href="{{ route('buku.create') }}" class="btn btn-primary">
+                + Tambah Buku
+            </a>
+        @endcan
     </div>
 
     @if(session('success'))
@@ -14,41 +21,6 @@
     @endif
 
     <div id="alertBox" class="alert d-none" role="alert"></div>
-
-    @can('kelola data buku')
-    <div class="card card-custom mb-4">
-        <div class="card-header bg-white fw-bold" id="formTitle">Tambah Buku Baru</div>
-        <div class="card-body">
-            <form id="bukuForm">
-                <input type="hidden" id="bukuId">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label small fw-semibold">ID Kategori</label>
-                        <input type="number" class="form-control" id="kategori_id" placeholder="Contoh: 1" required>
-                    </div>
-                    <div class="col-md-9 mb-3">
-                        <label class="form-label small fw-semibold">Judul Buku</label>
-                        <input type="text" class="form-control" id="judul" required placeholder="Masukkan judul buku">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-semibold">Penulis</label>
-                        <input type="text" class="form-control" id="penulis" required placeholder="Nama penulis">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-semibold">Tahun Terbit</label>
-                        <input type="number" class="form-control" id="tahun_terbit" required placeholder="Contoh: 2024">
-                    </div>
-                </div>
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary" id="btnSubmit">Simpan Buku</button>
-                    <button type="button" class="btn btn-secondary d-none" id="btnBatal" onclick="resetForm()">Batal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    @endcan
 
     <div class="card card-custom p-3">
         <div class="table-responsive">
@@ -69,7 +41,7 @@
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $buku->kategori->nama ?? $buku->kategori_id ?? '-' }}</td>
                             
-                            {{-- PERBAIKAN A1: Menggunakan HTML Escaping bawaan Blade ({{ }}) --}}
+                            {{-- PERBAIKAN A1: HTML Escaping bawaan Blade --}}
                             <td class="fw-bold">{{ $buku->judul }}</td>
                             
                             <td>{{ $buku->penulis }}</td>
@@ -86,11 +58,12 @@
                                         </form>
                                     @endhasrole
 
-                                    @can('kelola data buku')
-                                        <button class="btn btn-sm btn-warning me-1" onclick="editBuku({{ $buku->id }})">Ubah</button>
+                                    {{-- TOMBOL KELOLA BUKU (Admin & Petugas via Gate kelola-buku) --}}
+                                    @can('kelola-buku')
+                                        <a href="{{ route('buku.edit', $buku->id) }}" class="btn btn-sm btn-warning me-1">Ubah</a>
                                         
-                                        {{-- PERBAIKAN A3: Menggunakan Form POST + @csrf + @method('DELETE') --}}
-                                        <form action="/buku/{{ $buku->id }}/hapus" method="POST" class="d-inline">
+                                        {{-- PERBAIKAN A3: Form POST + @csrf + @method('DELETE') --}}
+                                        <form action="{{ route('buku.hapus', $buku->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus buku ini?')">Hapus</button>
@@ -110,6 +83,7 @@
     </div>
 </div>
 
+{{-- Modal Detail Buku --}}
 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -176,86 +150,6 @@ async function showDetail(id) {
     } catch (error) {
         showAlert(error.message, 'danger');
     }
-}
-
-const bukuForm = document.getElementById('bukuForm');
-if (bukuForm) {
-    bukuForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        
-        const id = document.getElementById('bukuId').value;
-        const isEdit = Boolean(id);
-        const url = isEdit ? `${API_URL}/${id}` : API_URL;
-        const method = isEdit ? 'PUT' : 'POST';
-
-        const payload = {
-            kategori_id: document.getElementById('kategori_id').value,
-            judul: document.getElementById('judul').value,
-            penulis: document.getElementById('penulis').value,
-            tahun_terbit: document.getElementById('tahun_terbit').value
-        };
-
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                const errorMsg = result.errors ? Object.values(result.errors).flat().join('<br>') : (result.message || 'Gagal menyimpan data');
-                throw new Error(errorMsg);
-            }
-
-            showAlert(isEdit ? 'Buku berhasil diperbarui!' : 'Buku berhasil ditambahkan!', 'success');
-            resetForm();
-            location.reload();
-        } catch (error) {
-            showAlert(error.message, 'danger');
-        }
-    });
-}
-
-async function editBuku(id) {
-    try {
-        const response = await fetch(`${API_URL}/${id}`, {
-            headers: { 
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': getCsrfToken()
-            }
-        });
-
-        if (!response.ok) throw new Error('Data buku tidak ditemukan.');
-        
-        const resData = await response.json();
-        const buku = resData.data || resData;
-
-        document.getElementById('bukuId').value = buku.id;
-        document.getElementById('kategori_id').value = buku.kategori_id || '';
-        document.getElementById('judul').value = buku.judul;
-        document.getElementById('penulis').value = buku.penulis;
-        document.getElementById('tahun_terbit').value = buku.tahun_terbit;
-
-        document.getElementById('formTitle').innerText = 'Ubah Data Buku';
-        document.getElementById('btnSubmit').innerText = 'Perbarui Buku';
-        document.getElementById('btnBatal').classList.remove('d-none');
-    } catch (error) {
-        showAlert(error.message, 'danger');
-    }
-}
-
-function resetForm() {
-    if (bukuForm) bukuForm.reset();
-    document.getElementById('bukuId').value = '';
-    document.getElementById('formTitle').innerText = 'Tambah Buku Baru';
-    document.getElementById('btnSubmit').innerText = 'Simpan Buku';
-    document.getElementById('btnBatal').classList.add('d-none');
 }
 
 function showAlert(message, type) {
