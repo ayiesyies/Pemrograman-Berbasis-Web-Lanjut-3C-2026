@@ -14,9 +14,12 @@ class AppServiceProvider extends ServiceProvider
     }
 
     public function boot(): void
-    {
-        Gate::define('kelola-buku', function (User $user) {
-            return $user->hasAnyRole(['admin', 'petugas']);
-        });
-    }
+   {
+    Gate::define('kelola-buku', function (User $user) {
+        return in_array($user->role, ['admin', 'petugas']);
+    });
+
+    // Mendaftarkan PeminjamanPolicy
+    Gate::policy(Peminjaman::class, PeminjamanPolicy::class);
+}
 }

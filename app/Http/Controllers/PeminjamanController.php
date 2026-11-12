@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Peminjaman;
 use App\Models\User;
 use App\Models\Buku;
@@ -129,15 +130,13 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * Perbaikan A4 (IDOR): Validasi otorisasi kepemilikan transaksi peminjaman.
+     * Perbaikan A4 (IDOR): Otorisasi terpusat menggunakan PeminjamanPolicy.
      */
     public function show($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
 
-        if ((int) $peminjaman->user_id !== (int) auth()->id() && !auth()->user()->hasAnyRole(['admin', 'petugas'])) {
-            abort(403, 'Akses ditolak! Anda tidak memiliki izin untuk melihat transaksi peminjaman ini.');
-        }
+        Gate::authorize('view', $peminjaman);
 
         return view('peminjaman.show', compact('peminjaman'));
     }
