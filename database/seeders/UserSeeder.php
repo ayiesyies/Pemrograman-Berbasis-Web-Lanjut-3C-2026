@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
         // Akun Admin (Password di-hash)
         $admin = User::firstOrCreate(
             ['email' => 'admin@perpustakaan.com'],
-            ['name' => 'Admin Utama', 'password' => Hash::make('password123')]
+            ['name' => 'Admin Utama', 'password' => Hash::make('password250441100041')]
         );
         $admin->assignRole('admin');
 

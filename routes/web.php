@@ -87,6 +87,12 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:lihat laporan perpustakaan'])->group(function () {
         Route::get('/laporan', function () { return view('laporan.index'); })->name('laporan.index');
     });
+        
+    // Route::get('/uji-error', function () {
+    // throw new \RuntimeException('Pengujian halaman error produksi');
+
+    // });
 });
+
 
 require __DIR__.'/auth.php';
